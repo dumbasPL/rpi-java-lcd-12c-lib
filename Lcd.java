@@ -1,4 +1,3 @@
-package me.dumbasPL.lcd;
 
 import java.io.IOException;
 
@@ -35,6 +34,7 @@ public class Lcd {
 		dev = bus.getDevice(adr);
 	}
 	
+	//init
 	public void init() throws IOException{
 		sendByte((byte) 0x33, LCD_CMD);
 		sendByte((byte) 0x32, LCD_CMD);
@@ -45,6 +45,7 @@ public class Lcd {
 		try{Thread.sleep(time);}catch (InterruptedException e){e.printStackTrace();}
 	}
 	
+	//sends byte to lcd(mode can be LCD_CMD or LCD_CHR)
 	public void sendByte(byte b, byte mode) throws IOException{
 		byte high = (byte) (mode | (b & 0xF0) | backlight);
 		byte low = (byte) (mode | ((b<<4) & 0xF0) | backlight);
@@ -54,18 +55,21 @@ public class Lcd {
 		toggleEnable(low);
 	}
 	
+	//toogles enable pin on display
 	public void toggleEnable(byte bits) throws IOException{
 		dev.write((byte) (bits | ENABLE));
 		try{Thread.sleep(time);}catch (InterruptedException e){e.printStackTrace();}
 		dev.write((byte) (bits & ~ENABLE));
 	}
 	
+	//sets backlight(true = on, false = off)
 	public void setBacklight(boolean state) throws IOException{
 		if(state) backlight = LCD_BACKLIGHT_ON;
 		else backlight = LCD_BACKLIGHT_OFF;
 		dev.write(backlight);
 	}
 	
+	//displays string in specified row and column
 	public void string(String str, int row, int col) throws IOException{
 		if(str.isEmpty()) return;
 		byte[] b = str.getBytes("US-ASCII");
@@ -82,6 +86,7 @@ public class Lcd {
 		}
 	}
 	
+	//displays string in specified row and column 0
 	public void string(String str, int row) throws IOException{
 		if(str.isEmpty()) return;
 		byte[] b = str.getBytes("US-ASCII");
@@ -97,6 +102,7 @@ public class Lcd {
 		}
 	}
 	
+	//displays custom char(0-7) in specified row and column
 	public void custom(int i, int row, int col) throws IOException{
 		byte line;
 		if(row == 0) line = LCD_LINE_1;
@@ -109,6 +115,7 @@ public class Lcd {
 		sendByte((byte) i, Lcd.LCD_CHR);
 	}
 	
+	//displays custom char(0-7) in specified row and column 0
 	public void custom(int i, int row) throws IOException{
 		if(i > 7) return;
 		byte line;
@@ -121,10 +128,12 @@ public class Lcd {
 		sendByte((byte) i, Lcd.LCD_CHR);
 	}
 	
+	//clears the screen
 	public void clear() throws IOException{
 		sendByte(CLEAR, LCD_CMD);
 	}
 	
+	//loads custom chars to display ram
 	public void loadCustom(byte[][] fontdata) throws IOException{
 		sendByte((byte) 0x40, LCD_CMD);
 		
